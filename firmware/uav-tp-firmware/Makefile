@@ -40,6 +40,7 @@ Core/Src/main.c \
 Core/Src/gpio.c \
 Core/Src/tim.c \
 Core/Src/usart.c \
+Core/Src/enable_printf.c \
 Core/Src/stm32l4xx_it.c \
 Core/Src/stm32l4xx_hal_msp.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c \
