@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 
 #include <stdio.h>
+#include "f405esc.h"
 
 //#include "enable_printf.h"
 
@@ -96,6 +97,10 @@ int main(void)
   MX_TIM3_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  f405esc_init(&htim3);
+  HAL_Delay(10000);
+  f405esc_setPwmValues(1160, 1160, 1160, 1160);
 
   /* USER CODE END 2 */
 
