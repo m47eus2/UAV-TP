@@ -18,7 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32l4xx_hal_def.h"
+#include "stm32l4xx_hal_gpio.h"
+#include "stm32l4xx_hal_tim.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -63,6 +64,17 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+uint8_t userButtonPressed(void){
+  if(HAL_GPIO_ReadPin(userButton_GPIO_Port, userButton_Pin) == GPIO_PIN_RESET)
+    return 1;
+  else
+    return 0;
+}
+
+uint16_t getEncoderVal(void){
+  return __HAL_TIM_GET_COUNTER(&htim2);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -96,20 +108,43 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM3_Init();
   MX_USART2_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
+  // Vars
+  uint8_t selectedEscChannel = 0;
+  uint8_t userButtonPrevState = 0;
+
+  // Inits
+  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   f405esc_init(&htim3);
-  HAL_Delay(10000);
-  f405esc_setPwmValues(1160, 1160, 1160, 1160);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-  {
-    printf("Hello World!\n");
-    HAL_Delay(1000);
+
+    // Selecting channel
+    {
+      if(userButtonPressed() == 1){
+        if(userButtonPrevState == 0){
+          userButtonPrevState = 1;
+          if(selectedEscChannel < 3) selectedEscChannel++;
+          else selectedEscChannel = 0;
+        }
+      }
+      else
+        userButtonPrevState = 0;
+
+    int16_t encoderVal = getEncoderVal();
+    printf(">encoder:%d\n",encoderVal);
+    printf(">selectedChannel:%d\n",selectedEscChannel);
+
+    f405esc_setChannelPwmValue(selectedEscChannel, 1000+encoderVal);
+    f405esc_printPwmValues();
+
+    HAL_Delay(20);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
