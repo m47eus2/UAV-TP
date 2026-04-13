@@ -18,8 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32l4xx_hal_gpio.h"
-#include "stm32l4xx_hal_tim.h"
+#include "i2c.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -29,6 +28,7 @@
 
 #include <stdio.h>
 #include "f405esc.h"
+#include "mpu6050.h"
 
 //#include "enable_printf.h"
 
@@ -75,6 +75,30 @@ uint16_t getEncoderVal(void){
   return __HAL_TIM_GET_COUNTER(&htim2);
 }
 
+uint8_t selectedEscChannel = 0;
+uint8_t userButtonPrevState = 0;
+void escManualControl(void){
+  //Selecting channel
+  if(userButtonPressed() == 1){
+    if(userButtonPrevState == 0){
+      userButtonPrevState = 1;
+      if(selectedEscChannel < 3) selectedEscChannel++;
+      else selectedEscChannel = 0;
+    }
+  }
+  else
+    userButtonPrevState = 0;
+
+  int16_t encoderVal = getEncoderVal();
+  printf(">encoder:%d\n",encoderVal);
+  printf(">selectedChannel:%d\n",selectedEscChannel);
+
+  f405esc_setChannelPwmValue(selectedEscChannel, 1000+encoderVal);
+  f405esc_printPwmValues();
+
+  HAL_Delay(20);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -109,42 +133,35 @@ int main(void)
   MX_TIM3_Init();
   MX_USART2_UART_Init();
   MX_TIM2_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
   // Vars
-  uint8_t selectedEscChannel = 0;
-  uint8_t userButtonPrevState = 0;
+  float gyroScaled[3];
+  float accelScaled[3];
 
   // Inits
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   f405esc_init(&htim3);
+  mpu6050_init(&hi2c1, 0x68<<1);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-
-    // Selecting channel
-    {
-      if(userButtonPressed() == 1){
-        if(userButtonPrevState == 0){
-          userButtonPrevState = 1;
-          if(selectedEscChannel < 3) selectedEscChannel++;
-          else selectedEscChannel = 0;
-        }
-      }
-      else
-        userButtonPrevState = 0;
-
-    int16_t encoderVal = getEncoderVal();
-    printf(">encoder:%d\n",encoderVal);
-    printf(">selectedChannel:%d\n",selectedEscChannel);
-
-    f405esc_setChannelPwmValue(selectedEscChannel, 1000+encoderVal);
-    f405esc_printPwmValues();
+  {
+    mpu6050_readScaled(gyroScaled, accelScaled);
+    
+    printf(">gyroX:%f\n",gyroScaled[0]);
+    printf(">gyroY:%f\n",gyroScaled[1]);
+    printf(">gyroZ:%f\n",gyroScaled[2]);
+    printf(">accelX:%f\n",accelScaled[0]);
+    printf(">accelY:%f\n",accelScaled[1]);
+    printf(">accelZ:%f\n",accelScaled[2]);
 
     HAL_Delay(20);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
