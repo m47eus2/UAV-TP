@@ -76,13 +76,23 @@ void mpu6050_readRaw(int16_t *gyro, int16_t *accel){
     gyro[2] = (int16_t)(buffer[12]<<8 | buffer[13]);
 }
 
-void mpu6050_readRollPitchYaw(float *roll, float *pitch, float *yaw){
+void mpu6050_readRollPitchYaw(float *rollAcc, float *pitchAcc, float *rollGyro, float *pitchGyro, float *yawGyro, float dt){
     float gyro[3];
     float accel[3];
-    static float yawAccum = 0.0f;
+    static float rollFromGyro, pitchFromGyro, yawFromGyro = 0.0f;
+
     mpu6050_readScaled(gyro, accel);
-    *roll = atan2(accel[1], accel[2]) * 57.3f;
-    *pitch = atan2(-accel[0], accel[2]) * 57.3f;
-    yawAccum += gyro[2] * 0.02f;
-    *yaw = yawAccum;
+
+    // Based on accel
+    *rollAcc = atan2(accel[1], accel[2]) * 57.3f;
+    *pitchAcc = atan2(-accel[0], accel[2]) * 57.3f;
+
+    // Based on gyro
+    rollFromGyro += gyro[0] * dt;
+    pitchFromGyro += gyro[1] * dt;
+    yawFromGyro += gyro[2] * dt;
+
+    *rollGyro = rollFromGyro;
+    *pitchGyro = pitchFromGyro;
+    *yawGyro = yawFromGyro;
 }

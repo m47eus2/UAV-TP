@@ -139,7 +139,7 @@ int main(void)
   // Vars
   float gyroScaled[3];
   float accelScaled[3];
-  float roll,pitch,yaw;
+  float rollAcc, pitchAcc, rollGyro, pitchGyro, yawGyro;
 
   // Inits
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
@@ -161,11 +161,13 @@ int main(void)
     // printf(">accelY:%f\n",accelScaled[1]);
     // printf(">accelZ:%f\n",accelScaled[2]);
 
-    mpu6050_readRollPitchYaw(&roll, &pitch, &yaw);
+    mpu6050_readRollPitchYaw(&rollAcc, &pitchAcc, &rollGyro, &pitchGyro, &yawGyro, 0.02f);
 
-    printf(">roll:%f\n",roll);
-    printf(">pitch:%f\n",pitch);
-    printf(">yaw:%f\n",yaw);
+    printf(">roll_acc:%f\n",rollAcc);
+    printf(">pitch_acc:%f\n",pitchAcc);
+    printf(">roll_gyro:%f\n",rollGyro);
+    printf(">pitch_gyro:%f\n",pitchGyro);
+    printf(">yaw_gyro:%f\n",yawGyro);
 
     HAL_Delay(20);
 

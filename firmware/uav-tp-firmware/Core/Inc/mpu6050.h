@@ -16,6 +16,6 @@ void mpu6050_init(I2C_HandleTypeDef *i2cHandler, uint8_t chipAddr);
 uint8_t mpu6050_whoami(void);
 void mpu6050_readRaw(int16_t *gyro, int16_t *accel);
 void mpu6050_readScaled(float *gyroScaled, float *accelScaled);
-void mpu6050_readRollPitchYaw(float *roll, float *pitch, float *yaw);
+void mpu6050_readRollPitchYaw(float *rollAcc, float *pitchAcc, float *rollGyro, float *pitchGyro, float *yawGyro, float dt);
 
 #endif
