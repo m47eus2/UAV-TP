@@ -1,5 +1,6 @@
 #include "mpu6050.h"
 #include <stdint.h>
+#include <math.h>
 
 typedef struct{
     I2C_HandleTypeDef *i2c;
@@ -73,4 +74,15 @@ void mpu6050_readRaw(int16_t *gyro, int16_t *accel){
     gyro[0] = (int16_t)(buffer[8]<<8 | buffer[9]);
     gyro[1] = (int16_t)(buffer[10]<<8 | buffer[11]);
     gyro[2] = (int16_t)(buffer[12]<<8 | buffer[13]);
+}
+
+void mpu6050_readRollPitchYaw(float *roll, float *pitch, float *yaw){
+    float gyro[3];
+    float accel[3];
+    static float yawAccum = 0.0f;
+    mpu6050_readScaled(gyro, accel);
+    *roll = atan2(accel[1], accel[2]) * 57.3f;
+    *pitch = atan2(-accel[0], accel[2]) * 57.3f;
+    yawAccum += gyro[2] * 0.02f;
+    *yaw = yawAccum;
 }
