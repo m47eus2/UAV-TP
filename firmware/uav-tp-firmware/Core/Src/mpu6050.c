@@ -9,10 +9,14 @@ typedef struct{
 static mpu6050Handler_t mpu6050Handler;
 
 void mpu6050_writeReg(uint8_t reg, uint8_t data){
+    if(mpu6050Handler.i2c == NULL) return;
+
     HAL_I2C_Mem_Write(mpu6050Handler.i2c, mpu6050Handler.addr, reg, 1, &data, 1, 100);
 }
 
 uint8_t mpu6050_readReg(uint8_t reg){
+    if(mpu6050Handler.i2c == NULL) return 0;
+
     uint8_t data;
     HAL_I2C_Mem_Read(mpu6050Handler.i2c, mpu6050Handler.addr, reg, 1, &data, 1, 100);
     return data;
@@ -70,6 +74,8 @@ uint8_t mpu6050_whoami(void){
 }
 
 void mpu6050_readRaw(int16_t *gyro, int16_t *accel){
+    if(mpu6050Handler.i2c == NULL) return;
+    
     uint8_t buffer[14];
     HAL_I2C_Mem_Read(mpu6050Handler.i2c, mpu6050Handler.addr, 0x3B, 1, buffer, 14, 100);
     
