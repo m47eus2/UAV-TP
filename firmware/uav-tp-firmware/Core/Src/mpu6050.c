@@ -31,25 +31,12 @@ void mpu6050_init(I2C_HandleTypeDef *i2cHandler, uint8_t chipAddr){
     temp = 1 << 7;
     mpu6050_writeReg(PWR_MGMT_1_REG, temp);
     HAL_Delay(100);
-
-    // Sleep
-    temp = mpu6050_readReg(PWR_MGMT_1_REG);
-    temp &= ~(1 << 6);
-    mpu6050_writeReg(PWR_MGMT_1_REG, temp);
     
-    // NEED TO BE CHECKED
-    //
-    // Clock source to internal
-    // temp = mpu6050_readReg(PWR_MGMT_1_REG);
-    // temp &= 0x78;
-    // mpu6050_writeReg(PWR_MGMT_1_REG, temp);
+    // Disable sleep, clock source to PLL from X axis gyro
+    mpu6050_writeReg(PWR_MGMT_1_REG, 0x01);
 
-    // NEED TO BE CHECKED
-    //
     // DLPF to 20Hz
-    // temp = mpu6050_readReg(CONFIG_REG);
-    // temp &= 0xfc;
-    // mpu6050_writeReg(CONFIG_REG, temp);
+    mpu6050_writeReg(CONFIG_REG, 0x04);
 
     // Gyro full range 
     mpu6050_writeReg(GYRO_CONFIG_REG, 0x18);
@@ -64,8 +51,8 @@ void mpu6050_readScaled(float *gyroScaled, float *accelScaled){
     mpu6050_readRaw(gyroRaw, accelRaw);
 
     for(uint8_t i=0; i<3; i++){
-        gyroScaled[i] = gyroRaw[i]/16.4;
-        accelScaled[i] = accelRaw[i]/2048.0;
+        gyroScaled[i] = gyroRaw[i]/16.4f;
+        accelScaled[i] = accelRaw[i]/2048.0f;
     }
 }
 
