@@ -17,5 +17,6 @@ uint8_t mpu6050_whoami(void);
 void mpu6050_readRaw(int16_t *gyro, int16_t *accel);
 void mpu6050_readScaled(float *gyroScaled, float *accelScaled);
 void mpu6050_readRollPitchYaw(float *rollAcc, float *pitchAcc, float *rollGyro, float *pitchGyro, float *yawGyro, float dt);
+void mpu6050_readRollPitchYawFused(float *roll, float *pitch, float *yaw, float alpha, float dt);
 
 #endif

@@ -99,11 +99,13 @@ void escManualControl(void){
   HAL_Delay(20);
 }
 
-float rollAcc, pitchAcc, rollGyro, pitchGyro, yawGyro;
+//float rollAcc, pitchAcc, rollGyro, pitchGyro, yawGyro;
+float roll, pitch, yaw;
 volatile uint8_t tim6InterruptCntr = 0;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim == &htim6){
-    mpu6050_readRollPitchYaw(&rollAcc, &pitchAcc, &rollGyro, &pitchGyro, &yawGyro, 0.01f);
+    //mpu6050_readRollPitchYaw(&rollAcc, &pitchAcc, &rollGyro, &pitchGyro, &yawGyro, 0.01f);
+    mpu6050_readRollPitchYawFused(&roll, &pitch, &yaw, 0.98f, 0.01f);
     tim6InterruptCntr++;
   }
 }
@@ -160,11 +162,16 @@ int main(void)
   {
 
     if(tim6InterruptCntr){
-      printf(">roll_acc:%f\n",rollAcc);
-      printf(">pitch_acc:%f\n",pitchAcc);
-      printf(">roll_gyro:%f\n",rollGyro);
-      printf(">pitch_gyro:%f\n",pitchGyro);
-      printf(">yaw_gyro:%f\n",yawGyro);
+      // printf(">roll_acc:%f\n",rollAcc);
+      // printf(">pitch_acc:%f\n",pitchAcc);
+      // printf(">roll_gyro:%f\n",rollGyro);
+      // printf(">pitch_gyro:%f\n",pitchGyro);
+      // printf(">yaw_gyro:%f\n",yawGyro);
+
+      printf(">roll:%f\n",roll);
+      printf(">pitch:%f\n",pitch);
+      printf(">yaw:%f\n",yaw);
+
 
       tim6InterruptCntr = 0;
     }
