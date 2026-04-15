@@ -99,6 +99,15 @@ void escManualControl(void){
   HAL_Delay(20);
 }
 
+float rollAcc, pitchAcc, rollGyro, pitchGyro, yawGyro;
+volatile uint8_t tim6InterruptCntr = 0;
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+  if(htim == &htim6){
+    mpu6050_readRollPitchYaw(&rollAcc, &pitchAcc, &rollGyro, &pitchGyro, &yawGyro, 0.01f);
+    tim6InterruptCntr++;
+  }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -134,14 +143,11 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM2_Init();
   MX_I2C1_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 
-  // Vars
-  float gyroScaled[3];
-  float accelScaled[3];
-  float rollAcc, pitchAcc, rollGyro, pitchGyro, yawGyro;
-
   // Inits
+  HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   f405esc_init(&htim3);
   mpu6050_init(&hi2c1, 0x68<<1);
@@ -152,24 +158,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // mpu6050_readScaled(gyroScaled, accelScaled);
-    
-    // printf(">gyroX:%f\n",gyroScaled[0]);
-    // printf(">gyroY:%f\n",gyroScaled[1]);
-    // printf(">gyroZ:%f\n",gyroScaled[2]);
-    // printf(">accelX:%f\n",accelScaled[0]);
-    // printf(">accelY:%f\n",accelScaled[1]);
-    // printf(">accelZ:%f\n",accelScaled[2]);
 
-    mpu6050_readRollPitchYaw(&rollAcc, &pitchAcc, &rollGyro, &pitchGyro, &yawGyro, 0.02f);
+    if(tim6InterruptCntr){
+      printf(">roll_acc:%f\n",rollAcc);
+      printf(">pitch_acc:%f\n",pitchAcc);
+      printf(">roll_gyro:%f\n",rollGyro);
+      printf(">pitch_gyro:%f\n",pitchGyro);
+      printf(">yaw_gyro:%f\n",yawGyro);
 
-    printf(">roll_acc:%f\n",rollAcc);
-    printf(">pitch_acc:%f\n",pitchAcc);
-    printf(">roll_gyro:%f\n",rollGyro);
-    printf(">pitch_gyro:%f\n",pitchGyro);
-    printf(">yaw_gyro:%f\n",yawGyro);
-
-    HAL_Delay(20);
+      tim6InterruptCntr = 0;
+    }
 
     /* USER CODE END WHILE */
 
