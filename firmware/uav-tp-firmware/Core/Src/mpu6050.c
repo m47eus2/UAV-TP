@@ -105,11 +105,26 @@ void mpu6050_readRollPitchYawFused(float *roll, float *pitch, float *yaw, float 
     static float pitchAccum = 0.0f;
     static float yawAccum = 0.0f;
 
+    static float rollAccelPrev = 0.0f;
+    static int16_t rollOffset = 0;
+
     mpu6050_readScaled(gyro, accel);
 
     // Based on accel
     rollAccel = atan2(accel[1], accel[2]) * 57.3f;
     pitchAccel = atan2(-accel[0], accel[2]) * 57.3f;
+
+    rollAccel += rollOffset;
+    // Continuous roll
+    if(rollAccel - rollAccelPrev <= -180.0f){
+        rollOffset += 360;
+        rollAccel += 360;
+    }
+    if(rollAccel - rollAccelPrev >= 180.0f){
+        rollOffset -= 360;
+        rollAccel -= 360;
+    }
+    rollAccelPrev = rollAccel;
 
     // Fusion
     rollAccum = alpha * (rollAccum + gyro[0]*dt) + (1.0f - alpha) * rollAccel;
