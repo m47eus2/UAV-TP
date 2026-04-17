@@ -12,10 +12,16 @@
 
 void mpu6050_writeReg(uint8_t reg, uint8_t data);
 uint8_t mpu6050_readReg(uint8_t reg);
-void mpu6050_init(I2C_HandleTypeDef *i2cHandler, uint8_t chipAddr);
+
 uint8_t mpu6050_whoami(void);
+void mpu6050_init(I2C_HandleTypeDef *i2cHandler, uint8_t chipAddr);
+void mpu6050_calibrateGyro(uint16_t samples);
 void mpu6050_readRaw(int16_t *gyro, int16_t *accel);
 void mpu6050_readScaled(float *gyroScaled, float *accelScaled);
+void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, float *rpy, float dt);
+
+// Experimental
+
 void mpu6050_readRollPitchYaw(float *rollAcc, float *pitchAcc, float *rollGyro, float *pitchGyro, float *yawGyro, float dt);
 void mpu6050_readRollPitchYawFused(float *roll, float *pitch, float *yaw, float alpha, float dt);
 
