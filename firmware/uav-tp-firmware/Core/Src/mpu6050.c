@@ -1,5 +1,4 @@
 #include "mpu6050.h"
-#include "stm32l4xx_hal.h"
 #include <stdint.h>
 #include <math.h>
 
