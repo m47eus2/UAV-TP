@@ -105,10 +105,11 @@ int16_t gyroRaw[3];
 int16_t gyroBiased[3];
 float gyroScaled[3];
 float rpy[3];
+float accel[2];
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim == &htim6){
-    mpu6050_readGyro(gyroRaw, gyroBiased, gyroScaled, rpy, 0.01f);
+    mpu6050_readGyro(gyroRaw, gyroBiased, gyroScaled, rpy, accel, 0.01f);
     tim6InterruptCntr++;
   }
 }
@@ -181,6 +182,8 @@ int main(void)
       printf(">roll:%f\n",rpy[0]);
       printf(">pitch:%f\n",rpy[1]);
       printf(">yaw:%f\n",rpy[2]);
+      printf(">accelRoll:%f\n",accel[0]);
+      printf(">accelPitch:%f\n",accel[1]);
 
       tim6InterruptCntr = 0;
     }

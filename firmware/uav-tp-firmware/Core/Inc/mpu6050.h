@@ -18,7 +18,7 @@ void mpu6050_init(I2C_HandleTypeDef *i2cHandler, uint8_t chipAddr);
 void mpu6050_calibrateGyro(uint16_t samples);
 void mpu6050_readRaw(int16_t *gyro, int16_t *accel);
 void mpu6050_readScaled(float *gyroScaled, float *accelScaled);
-void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, float *rpy, float dt);
+void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, float *rpy, float *accelret, float dt);
 
 // Experimental
 

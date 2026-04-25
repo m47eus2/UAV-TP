@@ -97,7 +97,7 @@ void mpu6050_readScaled(float *gyroScaled, float *accelScaled){
     }
 }
 
-void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, float *rpy, float dt){
+void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, float *rpy, float *accelret, float dt){
     static float gyroAngleAccumX = 0.0f;
     static float gyroAngleAccumY = 0.0f;
     static float gyroAngleAccumZ = 0.0f;
@@ -105,15 +105,36 @@ void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, 
     int16_t accel[3];
     mpu6050_readRaw(gyro, accel);
 
+    float accelScaled[3];
     for(uint8_t i=0; i<3; i++){
         gyroRaw[i] = gyro[i];
         gyroBiased[i] = gyro[i] - mpu6050Handler.gyroBias[i];
         gyroScaled[i] = gyroBiased[i]/16.4f;
+
+        accelScaled[i] = accel[i]/2048.0f;
     }
 
     gyroAngleAccumX += gyroScaled[0]*dt;
     gyroAngleAccumY += gyroScaled[1]*dt;
     gyroAngleAccumZ += gyroScaled[2]*dt;
+
+    //Accel
+    float roll_accel = atan2(accelScaled[1], accelScaled[2]) * 57.3f;
+    float pitch_accel = atan2(-accelScaled[0], accelScaled[2]) * 57.3f;
+    accelret[0] = roll_accel;
+    accelret[1] = pitch_accel;
+
+    // Drif compensation
+    if(fabsf(roll_accel) < 45.0f && fabsf(pitch_accel) < 45.0f){
+        if(fabsf(pitch_accel) <= 20.0f){
+            float rollError = roll_accel - gyroAngleAccumX;
+            gyroAngleAccumX += rollError * 0.1f;
+        }
+        if(fabsf(roll_accel) <= 20.0f){
+            float pitchError = pitch_accel - gyroAngleAccumY;
+            gyroAngleAccumY += pitchError * 0.1f;
+        }
+    }
 
     rpy[0] = gyroAngleAccumX;
     rpy[1] = gyroAngleAccumY;
