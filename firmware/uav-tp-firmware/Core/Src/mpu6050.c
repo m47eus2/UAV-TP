@@ -111,6 +111,7 @@ void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, 
         gyroBiased[i] = gyro[i] - mpu6050Handler.gyroBias[i];
         gyroScaled[i] = gyroBiased[i]/16.4f;
 
+        // accelScaled[i] = -accel[i]/2048.0f; <- for sensor up site down
         accelScaled[i] = accel[i]/2048.0f;
     }
 

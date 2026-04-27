@@ -170,15 +170,15 @@ int main(void)
   {
 
     if(tim6InterruptCntr){
-      printf(">gyroRawX:%d\n",gyroRaw[0]);
-      printf(">gyroRawY:%d\n",gyroRaw[1]);
-      printf(">gyroRawZ:%d\n",gyroRaw[2]);
-      printf(">gyroBiasedX:%d\n",gyroBiased[0]);
-      printf(">gyroBiasedY:%d\n",gyroBiased[1]);
-      printf(">gyroBiasedZ:%d\n",gyroBiased[2]);
-      printf(">gyroScaledX:%f\n",gyroScaled[0]);
-      printf(">gyroScaledY:%f\n",gyroScaled[1]);
-      printf(">gyroScaledZ:%f\n",gyroScaled[2]);
+      // printf(">gyroRawX:%d\n",gyroRaw[0]);
+      // printf(">gyroRawY:%d\n",gyroRaw[1]);
+      // printf(">gyroRawZ:%d\n",gyroRaw[2]);
+      // printf(">gyroBiasedX:%d\n",gyroBiased[0]);
+      // printf(">gyroBiasedY:%d\n",gyroBiased[1]);
+      // printf(">gyroBiasedZ:%d\n",gyroBiased[2]);
+      // printf(">gyroScaledX:%f\n",gyroScaled[0]);
+      // printf(">gyroScaledY:%f\n",gyroScaled[1]);
+      // printf(">gyroScaledZ:%f\n",gyroScaled[2]);
       printf(">roll:%f\n",rpy[0]);
       printf(">pitch:%f\n",rpy[1]);
       printf(">yaw:%f\n",rpy[2]);
