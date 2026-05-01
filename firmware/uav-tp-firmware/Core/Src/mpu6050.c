@@ -97,7 +97,7 @@ void mpu6050_readScaled(float *gyroScaled, float *accelScaled){
     }
 }
 
-void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, float *rpy, float *accelret, float dt){
+void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, float *rpy, float *accelret, uint8_t *compEnabled, float dt){
     static float gyroAngleAccumX = 0.0f;
     static float gyroAngleAccumY = 0.0f;
     static float gyroAngleAccumZ = 0.0f;
@@ -105,6 +105,7 @@ void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, 
     int16_t accel[3];
     mpu6050_readRaw(gyro, accel);
 
+    // Biasing and scaling gyro, scaling accel
     float accelScaled[3];
     for(uint8_t i=0; i<3; i++){
         gyroRaw[i] = gyro[i];
@@ -115,11 +116,12 @@ void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, 
         accelScaled[i] = accel[i]/2048.0f;
     }
 
+    // Gyro roll pitch yaw angles
     gyroAngleAccumX += gyroScaled[0]*dt;
     gyroAngleAccumY += gyroScaled[1]*dt;
     gyroAngleAccumZ += gyroScaled[2]*dt;
 
-    //Accel
+    //Accel roll and pitch values
     float roll_accel = atan2(accelScaled[1], accelScaled[2]) * 57.3f;
     float pitch_accel = atan2(-accelScaled[0], accelScaled[2]) * 57.3f;
     accelret[0] = roll_accel;
@@ -127,16 +129,28 @@ void mpu6050_readGyro(int16_t *gyroRaw, int16_t *gyroBiased, float *gyroScaled, 
 
     // Drif compensation
     if(fabsf(roll_accel) < 45.0f && fabsf(pitch_accel) < 45.0f){
+        float rollError = roll_accel - gyroAngleAccumX;
+        float pitchError = pitch_accel - gyroAngleAccumY;
+        
         if(fabsf(pitch_accel) <= 20.0f){
-            float rollError = roll_accel - gyroAngleAccumX;
+            compEnabled[0] = 1;
             gyroAngleAccumX += rollError * 0.1f;
         }
+        else
+            compEnabled[0] = 0;
         if(fabsf(roll_accel) <= 20.0f){
-            float pitchError = pitch_accel - gyroAngleAccumY;
+            compEnabled[1] = 1;
             gyroAngleAccumY += pitchError * 0.1f;
         }
+        else
+            compEnabled[1] = 0;
+    }
+    else{
+        compEnabled[0] = 0;
+        compEnabled[1] = 0;
     }
 
+    // Setting rpy values
     rpy[0] = gyroAngleAccumX;
     rpy[1] = gyroAngleAccumY;
     rpy[2] = gyroAngleAccumZ;

@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "i2c.h"
+#include "stm32l4xx_hal_gpio.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -106,10 +107,11 @@ int16_t gyroBiased[3];
 float gyroScaled[3];
 float rpy[3];
 float accel[2];
+uint8_t compEnabled[2];
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim == &htim6){
-    mpu6050_readGyro(gyroRaw, gyroBiased, gyroScaled, rpy, accel, 0.01f);
+    mpu6050_readGyro(gyroRaw, gyroBiased, gyroScaled, rpy, accel, compEnabled, 0.01f);
     tim6InterruptCntr++;
   }
 }
@@ -162,6 +164,8 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
 
+  HAL_GPIO_WritePin(userLed_GPIO_Port, userLed_Pin, GPIO_PIN_SET);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -184,6 +188,8 @@ int main(void)
       printf(">yaw:%f\n",rpy[2]);
       printf(">accelRoll:%f\n",accel[0]);
       printf(">accelPitch:%f\n",accel[1]);
+      printf(">rollCompensation:%d\n", compEnabled[0]);
+      printf(">pitchCompensation:%d\n", compEnabled[1]);
 
       tim6InterruptCntr = 0;
     }
